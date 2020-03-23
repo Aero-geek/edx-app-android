@@ -23,11 +23,11 @@ RUN_NAME = 'edX_test_run'
 RUN_TIMEOUT_SECONDS = 60 * 30
 UPLOAD_SUCCESS_STATUS = 'SUCCEEDED'
 RUN_COMPLETED_STATUS = 'COMPLETED'
-TEST_PROJECT_REPO_NAME = 'edx-app-test'
+TEST_PROJECT_REPO_NAME = 'edx-app-test/'
 CUSTOM_SPECS_NAME ='edx.yml'
-APK_PATH = './OpenEdXMobile/build/outputs/apk/prod/debuggable/'
+APK_PATH = '/OpenEdXMobile/build/outputs/apk/prod/debuggable/'
 AUT_NAME = APK_PATH + 'edx-debuggable-2.20.2.apk'	
-PACKAGE_NAME = TEST_PROJECT_REPO_NAME + '/test_bundle.zip'
+PACKAGE_NAME = TEST_PROJECT_REPO_NAME + 'test_bundle.zip'
 
 print('Application Under Test - {}, Test Package - {} - configs {}'.format(
         AUT_NAME,
@@ -35,7 +35,7 @@ print('Application Under Test - {}, Test Package - {} - configs {}'.format(
         CUSTOM_SPECS_NAME
     ))
 
-setup_aws.setup_aws_data()
+# setup_aws.setup_aws_data()
 device_farm = boto3.client('devicefarm', region_name=REGION)
 
 

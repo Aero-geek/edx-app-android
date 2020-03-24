@@ -25,7 +25,7 @@ UPLOAD_SUCCESS_STATUS = 'SUCCEEDED'
 RUN_COMPLETED_STATUS = 'COMPLETED'
 TEST_PROJECT_REPO_NAME = 'edx-app-test/'
 CUSTOM_SPECS_NAME ='edx.yml'
-APK_PATH = '/OpenEdXMobile/build/outputs/apk/prod/debuggable/'
+APK_PATH = 'OpenEdXMobile/build/outputs/apk/prod/debuggable/'
 AUT_NAME = APK_PATH + 'edx-debuggable-2.20.2.apk'	
 PACKAGE_NAME = TEST_PROJECT_REPO_NAME + 'test_bundle.zip'
 

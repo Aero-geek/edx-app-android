@@ -272,6 +272,16 @@ if (firebaseEnabled ?: false) {
 // Variable to check if Firebase Cloud Messaging is enabled
 def fcmEnabled = config.get('PUSH_NOTIFICATIONS') && firebaseEnabled && firebaseConfig?.get('CLOUD_MESSAGING_ENABLED')
 
+// Variable to check if Microsoft is enabled
+def microsoftConfig = config.get("MICROSOFT")
+def isMicrosoftEnabled = microsoftConfig && microsoftConfig.get("ENABLED")
+def microsoftSignature = ""
+if (isMicrosoftEnabled) {
+// Validate Microsoft configurations
+    AndroidHelper.isValidConfigurations(microsoftConfig)
+    microsoftSignature = microsoftConfig.get("SIGNATURE_HASH")
+}
+
 android {
     compileSdkVersion COMPILE_SDK_VERSION
     buildToolsVersion BUILD_TOOLS_VERSION
@@ -370,13 +380,14 @@ android {
             fbLoginProtocolScheme = "fb"+facebookAppId
         }
 
-        manifestPlaceholders = [supportsRtl:"false",
-                                firebaseEnabled: firebaseEnabled?: false,
-                                fcmEnabled: fcmEnabled,
-                                branchKey: branchKey,
-                                facebookAppId: facebookAppId,
+        manifestPlaceholders = [supportsRtl          : "false",
+                                firebaseEnabled      : firebaseEnabled ?: false,
+                                fcmEnabled           : fcmEnabled,
+                                branchKey            : branchKey,
+                                facebookAppId        : facebookAppId,
+                                microsoftSignature   : microsoftSignature,
                                 fbLoginProtocolScheme: fbLoginProtocolScheme,
-                                sdCardEnabled: config.get('DOWNLOAD_TO_SD_CARD_ENABLED') ?: true]
+                                sdCardEnabled        : config.get('DOWNLOAD_TO_SD_CARD_ENABLED') ?: true]
 
         javaCompileOptions {
 
@@ -508,6 +519,22 @@ android.applicationVariants.all { variant ->
         }
         def googleServicesJsonValidationTask = "process$variantName" + "GoogleServices"
         tasks.getByName(googleServicesJsonValidationTask).dependsOn(serviceJsonTask)
+    }
+
+    // Task that generate auth_config.json for the config and execute for the Microsoft authentication
+    if (isMicrosoftEnabled) {
+        def configJsonTask = "generate$variantName" + "MicrosoftConfigs"
+        project.task(configJsonTask).doFirst {
+            AndroidHelper.saveMicrosoftAuthConfigs(project, microsoftConfig)
+        }
+        generateTask.dependsOn(configJsonTask)
+    } else {
+        // If Microsoft authentication is disabled then create an empty configuration file to make
+        // the build without any compilation error.
+        def microsoftConfigsJsonPath = project.projectDir.toString() + "/res/raw/auth_config.json"
+        new FileWriter(microsoftConfigsJsonPath).withWriter {
+            it.write("")
+        }
     }
 
     tasks.all { task ->

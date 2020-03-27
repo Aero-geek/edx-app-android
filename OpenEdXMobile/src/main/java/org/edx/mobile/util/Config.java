@@ -359,7 +359,8 @@ public class Config {
         @SerializedName("ENABLED")
         private boolean mEnabled;
 
-        public MicrosoftConfig() {
+        public MicrosoftConfig(boolean mEnabled) {
+            this.mEnabled = mEnabled;
         }
 
         public boolean isEnabled() {

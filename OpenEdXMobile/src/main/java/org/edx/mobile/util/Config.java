@@ -3,9 +3,10 @@ package org.edx.mobile.util;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.text.TextUtils;
 
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.core.CrashlyticsCore;
@@ -361,6 +362,9 @@ public class Config {
 
         public MicrosoftConfig(boolean mEnabled) {
             this.mEnabled = mEnabled;
+        }
+
+        public MicrosoftConfig() {
         }
 
         public boolean isEnabled() {

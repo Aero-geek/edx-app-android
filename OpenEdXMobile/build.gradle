@@ -426,8 +426,8 @@ android {
          */
         //TODO: Remove GradleCompatible after we upgrade to Android Studio 2.4
         disable 'GradleCompatible'
-        disable 'MissingTranslation'
-        disable 'ImpliedQuantity'
+        warning 'MissingTranslation'
+        warning 'ImpliedQuantity'
     }
 
     productFlavors {

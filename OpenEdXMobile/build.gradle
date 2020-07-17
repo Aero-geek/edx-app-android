@@ -206,6 +206,7 @@ dependencies {
 
     //New Relic Integration
     implementation 'com.newrelic.agent.android:android-agent:5.4.1'
+    implementation 'com.android.volley:volley:1.1.0'
 
     // test project configuration
     testImplementation 'junit:junit:4.12'

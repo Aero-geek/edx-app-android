@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.edx.mobile.base.MainApplication;
+import org.edx.mobile.base.RuntimeApplication;
 import org.edx.mobile.core.IEdxEnvironment;
 import org.edx.mobile.deeplink.BranchLinkManager;
 import org.edx.mobile.deeplink.PushLinkManager;
@@ -19,10 +20,13 @@ public class SplashActivity extends Activity {
     protected final Logger logger = new Logger(getClass().getName());
     private Config config = new Config(MainApplication.instance());
 
+    RuntimeApplication app;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        app = (RuntimeApplication) getApplicationContext();
         /*
         Recommended solution to avoid opening of multiple tasks of our app's launcher activity.
         For more info:
@@ -40,6 +44,8 @@ public class SplashActivity extends Activity {
         final IEdxEnvironment environment = MainApplication.getEnvironment(this);
         if (environment.getUserPrefs().getProfile() != null) {
             environment.getRouter().showMainDashboard(SplashActivity.this);
+            app.setEmeil(environment.getUserPrefs().getProfile().email);
+
         } else if (!environment.getConfig().isRegistrationEnabled()) {
             startActivity(environment.getRouter().getLogInIntent());
         } else {

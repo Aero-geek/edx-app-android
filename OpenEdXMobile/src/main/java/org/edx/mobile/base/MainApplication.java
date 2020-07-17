@@ -8,15 +8,19 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
-import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.facebook.FacebookSdk;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.FirebaseApp;
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -52,10 +56,12 @@ import org.edx.mobile.util.Sha1Util;
 
 import java.io.File;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
 
 import de.greenrobot.event.EventBus;
 import io.branch.referral.Branch;
@@ -88,12 +94,34 @@ public abstract class MainApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         init();
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            initializeSSLContext(this);
+
+        }
     }
 
     /**
      * Initializes the request manager, image cache,
      * all third party integrations and shared components.
      */
+
+    public void initializeSSLContext(Context mContext) {
+        try {
+            SSLContext.getInstance("TLSv1.2");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            ProviderInstaller.installIfNeeded(mContext.getApplicationContext());
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void init() {
         application = this;
         // FIXME: Disable RoboBlender to avoid annotation processor issues for now, as we already have plans to move to some other DI framework. See LEARNER-1687.

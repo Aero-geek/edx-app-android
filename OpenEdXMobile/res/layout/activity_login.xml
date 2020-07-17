@@ -34,6 +34,16 @@
                     android:layout_marginRight="@dimen/login_logo_margin_horizontal"
                     android:layout_marginTop="@dimen/login_logo_margin_top">
 
+
+                    <ProgressBar
+                        style="?android:attr/progressBarStyleLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/progressBar"
+                        android:layout_gravity="center"
+                        android:progressDrawable="@drawable/circular_progress_bar"
+                         />
+
                     <ImageView
                         android:id="@+id/login_map"
                         android:layout_width="wrap_content"

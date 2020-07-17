@@ -22,6 +22,9 @@
     <color name="transparent_white_20">#33FFFFFF</color>
     <color name="transparent_white_13">#21ffffff</color>
     <color name="cyan_text_navigation_20">#20299ED7</color>
+    <color name="cyan_800_overlay">#E600838F</color>
+    <color name="cyan_200">#80DEEA</color>
+
     <color name="disabled_chapter_list">#EBEBED</color>
     <color name="grey_light">#3c4045</color>
     <color name="grey_medium">#666666</color>

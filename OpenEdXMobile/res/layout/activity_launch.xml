@@ -6,8 +6,20 @@
         android:id="@+id/rl_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:background="@drawable/launch_background"
         android:splitMotionEvents="false">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/phonetic_app_name"
+            android:src="@drawable/image_12" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/cyan_text_navigation_20" />
+
 
         <ImageView
             android:id="@+id/edx_logo"
@@ -61,3 +73,4 @@
 
     </RelativeLayout>
 </layout>
+

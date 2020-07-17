@@ -1,25 +1,38 @@
 package org.edx.mobile.view;
 
-import androidx.databinding.DataBindingUtil;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.databinding.DataBindingUtil;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.toolbox.StringRequest;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 import org.edx.mobile.R;
+import org.edx.mobile.VolleySingleton;
+import org.edx.mobile.base.RuntimeApplication;
 import org.edx.mobile.core.IEdxEnvironment;
 import org.edx.mobile.databinding.FragmentMyCoursesListBinding;
 import org.edx.mobile.databinding.PanelFindCourseBinding;
 import org.edx.mobile.deeplink.Screen;
-import org.edx.mobile.event.MoveToDiscoveryTabEvent;
 import org.edx.mobile.event.EnrolledInCourseEvent;
 import org.edx.mobile.event.MainDashboardRefreshEvent;
+import org.edx.mobile.event.MoveToDiscoveryTabEvent;
 import org.edx.mobile.event.NetworkConnectivityChangeEvent;
 import org.edx.mobile.exception.AuthException;
 import org.edx.mobile.http.HttpStatus;
@@ -35,9 +48,18 @@ import org.edx.mobile.module.prefs.LoginPrefs;
 import org.edx.mobile.util.NetworkUtil;
 import org.edx.mobile.util.UiUtil;
 import org.edx.mobile.view.adapters.MyCoursesAdapter;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -53,6 +75,9 @@ public class MyCoursesListFragment extends OfflineSupportBaseFragment
     private FragmentMyCoursesListBinding binding;
     private final Logger logger = new Logger(getClass().getSimpleName());
     private boolean refreshOnResume = false;
+    private String url = "https://smartedoo.co.ke/wp-json/wc/v2/customers?email=";
+
+    RuntimeApplication app;
 
     @Inject
     private IEdxEnvironment environment;
@@ -68,6 +93,8 @@ public class MyCoursesListFragment extends OfflineSupportBaseFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        app = (RuntimeApplication) getActivity().getApplicationContext();
+
         adapter = new MyCoursesAdapter(getActivity(), environment) {
             @Override
             public void onItemClicked(EnrolledCoursesResponse model) {
@@ -240,6 +267,21 @@ public class MyCoursesListFragment extends OfflineSupportBaseFragment
             errorNotification.hideError();
         }
         getLoaderManager().restartLoader(MY_COURSE_LOADER_ID, null, this);
+
+
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.e("Called", "Infor");
+
+                sendAndRequestPaymentCheckResponse(app.getEmeil());
+                handler.postDelayed(this, 79200000);
+
+                //79200000 22hours
+            }
+        };
+        handler.postDelayed(runnable, 79200000);
     }
 
     private void addFindCoursesFooter() {
@@ -298,4 +340,146 @@ public class MyCoursesListFragment extends OfflineSupportBaseFragment
     protected boolean isShowingFullScreenError() {
         return errorNotification != null && errorNotification.isShowing();
     }
+
+
+    private void sendAndRequestPaymentCheckResponse(String email) {
+
+
+        // prepare the Request
+        Log.e("Url", url + "" + email);
+        StringRequest req = new StringRequest(Request.Method.GET, url + "" + email,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // display response
+//                        Log.e("Data", response.toString());
+
+                        try {
+                            JSONArray obj = new JSONArray(response);
+                            Log.e("Obj", obj.toString());
+
+                            if (obj.length() <= 0) {
+
+//                                Toast.makeText(LoginActivity.this, "You haven't made subscriptions", Toast.LENGTH_SHORT).show();
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity().getApplicationContext());
+                                alertDialogBuilder.setTitle("Subscriptions  Infor!");
+                                alertDialogBuilder.setCancelable(false);
+
+                                alertDialogBuilder.setMessage("You do not have an active subscription to view the courses");
+                                alertDialogBuilder.setPositiveButton("Subscribe",
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface arg0, int arg1) {
+                                                startActivity(new Intent(getActivity().getApplicationContext(), PaymentSubViewActivity.class));
+                                            }
+                                        });
+
+                                alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        getActivity().finish();
+                                    }
+                                });
+
+                                AlertDialog alertDialog = alertDialogBuilder.create();
+                                alertDialog.show();
+
+                            } else {
+
+                                for (int i = 0; i < obj.length(); i++) {
+                                    //getting the json object of the particular index inside the array
+                                    JSONObject order_obj = obj.getJSONObject(i);
+                                    Log.e("date_created", order_obj.getString("date_created").toString());
+                                    Log.e("first_name", order_obj.getString("first_name").toString());
+                                    Log.e("date_created_gmt", order_obj.getString("date_modified").toString());
+
+                                    String pay_date = order_obj.getString("date_modified");
+
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                                    try {
+                                        Date newDate = dateFormat.parse(pay_date);
+
+
+                                        Date today = new Date();
+                                        Log.e("today", String.valueOf(dateFormat.format(today)));
+
+                                        Calendar thirtyDaysAgo = Calendar.getInstance();
+                                        thirtyDaysAgo.add(Calendar.DAY_OF_MONTH, -30);
+
+                                        Date thirtyDaysAgoDate = thirtyDaysAgo.getTime();
+                                        Log.e("thirtyDaysAgo", String.valueOf(dateFormat.format(thirtyDaysAgoDate)));
+
+
+                                        if (newDate.equals(thirtyDaysAgoDate)) {
+
+                                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity().getApplicationContext());
+                                            alertDialogBuilder.setTitle("Subscriptions  Expiry!");
+                                            alertDialogBuilder.setMessage("Your Monthly Subscription has expired");
+                                            alertDialogBuilder.setCancelable(false);
+                                            alertDialogBuilder.setPositiveButton("Re-Subscribe",
+                                                    new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface arg0, int arg1) {
+                                                            startActivity(new Intent(getActivity().getApplicationContext(), PaymentSubViewActivity.class));
+                                                        }
+                                                    });
+
+                                            alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    getActivity().finish();
+                                                }
+                                            });
+
+                                            AlertDialog alertDialog = alertDialogBuilder.create();
+                                            alertDialog.show();
+
+                                        }
+
+
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+
+
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+
+                        }
+
+
+                    }
+                },
+                error -> {
+                    Log.d("Error.Response", "Error");
+
+
+                }
+        ) {
+
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+
+                String auth = "Basic " + "Y2tfMWM4OGRiZjY0MzgxYjM4ZWY0MjViMDkxYzM5Zjc2MzA3M2ExYzlhNjpjc19hNGMxNmQ0YTVjZjNjMDlhNDdlZWRkZjNjNDlhZjJiZmQxZDJmZjAw";
+                headers.put("Authorization", auth);
+                return headers;
+            }
+
+
+        };
+
+        // add it to the RequestQueue
+        req.setRetryPolicy(new DefaultRetryPolicy(20000, -1, 0));
+
+        VolleySingleton.getInstance(getActivity().getApplicationContext()).addToRequestQueue(req);
+
+
+    }
+
 }

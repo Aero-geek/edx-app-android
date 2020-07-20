@@ -104,6 +104,7 @@ public class LoginActivity
     protected LoginPresenter.LoginViewInterface createView(@Nullable Bundle savedInstanceState) {
         activityLoginBinding = DataBindingUtil.setContentView(this, R.layout.activity_login);
 
+
         spinner = (ProgressBar) findViewById(R.id.progressBar);
         spinner.setVisibility(View.GONE);
         app = (RuntimeApplication) getApplicationContext();

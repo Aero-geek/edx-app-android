@@ -168,7 +168,7 @@ dependencies {
      * latest version as a result of dynamic version
      * definitions in the transitive dependencies.
      */
-    implementation ('com.squareup.retrofit2:retrofit:2.1.0') {
+    implementation ('com.squareup.retrofit2:retrofit:2.8.1') {
         exclude group: 'com.squareup.okhttp3', module: 'okhttp'
     }
     implementation ('com.squareup.retrofit2:converter-gson:2.1.0') {

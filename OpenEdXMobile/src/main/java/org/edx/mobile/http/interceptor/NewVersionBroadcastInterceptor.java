@@ -57,6 +57,7 @@ public class NewVersionBroadcastInterceptor implements Interceptor {
                      * response.
                      */
                     logger.error(e, true);
+
                     return response;
                 }
             }

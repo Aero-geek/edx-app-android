@@ -1,4 +1,4 @@
-API_HOST_URL: 'https://online.smartedoo.co.ke' # localhost is 10.0.2.2 in Android
+API_HOST_URL: '#' # localhost is 10.0.2.2 in Android
 ENVIRONMENT_DISPLAY_NAME: 'Smart Env'
 PLATFORM_NAME: 'Smart Edoo'
 PLATFORM_DESTINATION_NAME: 'online.smartedoo.co.ke'
@@ -13,3 +13,4 @@ PROJECT_ID: ""
 OAUTH_CLIENT_ID: ""
 CURRENT_KEY: ""
 MOBILE_SDK_APP_ID: ""
+OAUTH_CLIENT_ID: '#'

@@ -16,7 +16,8 @@ buildscript {
         classpath "com.newrelic.agent.android:agent-gradle-plugin:5.4.1"
         //Screenshot testing library
         classpath 'com.facebook.testing.screenshot:plugin:0.11.0'
-        classpath 'com.google.gms:google-services:4.2.0'
+        classpath 'com.google.gms:google-services:4.3.3'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.2.0'
     }
 }
 
@@ -257,10 +258,12 @@ configurations {
 def config = new TaskHelper().loadConfig(project)
 def firebaseConfig = config.get('FIREBASE')
 def firebaseEnabled = firebaseConfig?.get('ENABLED')
-if (firebaseEnabled ?: false) {
+if (firebaseEnabled ?: true) {
     apply plugin: 'com.google.gms.google-services'
     // Apply the Performance Monitoring plugin to enable instrumentation
     apply plugin: 'com.google.firebase.firebase-perf'
+    apply plugin: 'com.google.firebase.crashlytics'
+
 }
 // Variable to check if Firebase Cloud Messaging is enabled
 def fcmEnabled = config.get('PUSH_NOTIFICATIONS') && firebaseEnabled && firebaseConfig?.get('CLOUD_MESSAGING_ENABLED')
@@ -367,7 +370,7 @@ android {
         }
 
         manifestPlaceholders = [supportsRtl:"false",
-                                firebaseEnabled: firebaseEnabled?: false,
+                                firebaseEnabled: firebaseEnabled?: true,
                                 fcmEnabled: fcmEnabled,
                                 branchKey: branchKey,
                                 facebookAppId: facebookAppId,

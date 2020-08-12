@@ -95,6 +95,7 @@ public abstract class MainApplication extends MultiDexApplication {
         super.onCreate();
         init();
 
+
     }
 
     /**

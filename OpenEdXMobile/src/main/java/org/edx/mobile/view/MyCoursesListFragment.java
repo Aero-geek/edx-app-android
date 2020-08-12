@@ -3,17 +3,18 @@ package org.edx.mobile.view;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.room.Room;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.AuthFailureError;
@@ -21,6 +22,12 @@ import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 import org.edx.mobile.R;
@@ -48,6 +55,10 @@ import org.edx.mobile.module.prefs.LoginPrefs;
 import org.edx.mobile.util.NetworkUtil;
 import org.edx.mobile.util.UiUtil;
 import org.edx.mobile.view.adapters.MyCoursesAdapter;
+import org.edx.mobile.view.common.AppDatabase;
+import org.edx.mobile.view.common.LocalCourse;
+import org.edx.mobile.view.common.LocalCourseDao;
+import org.edx.mobile.view.custom.MyListData;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,6 +66,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,6 +76,8 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class MyCoursesListFragment extends OfflineSupportBaseFragment
         implements RefreshListener,
@@ -77,7 +91,14 @@ public class MyCoursesListFragment extends OfflineSupportBaseFragment
     private boolean refreshOnResume = false;
     private String url = "https://smartedoo.co.ke/wp-json/wc/v2/customers?email=";
 
+    private DatabaseReference mFirebaseDatabase;
+    private FirebaseDatabase mFirebaseInstance;
     RuntimeApplication app;
+    SharedPreferences pref;
+    String subdata;
+    List<MyListData> data = new ArrayList<>();
+    LocalCourseDao localCourseDao;
+
 
     @Inject
     private IEdxEnvironment environment;
@@ -94,6 +115,25 @@ public class MyCoursesListFragment extends OfflineSupportBaseFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         app = (RuntimeApplication) getActivity().getApplicationContext();
+        pref = getActivity().getApplicationContext().getSharedPreferences("subscribedPref", MODE_PRIVATE);
+        subdata = pref.getString("data", "0");
+        AppDatabase db = Room.databaseBuilder(getActivity().getApplicationContext(),
+                AppDatabase.class, "database-name").allowMainThreadQueries().build();
+
+        localCourseDao = db.userDao();
+
+        mFirebaseInstance = FirebaseDatabase.getInstance();
+
+        // get reference to 'users' node
+        mFirebaseDatabase = mFirebaseInstance.getReference("users");
+
+        Log.e("subdata", subdata);
+        Gson gson = new Gson();
+//
+//        LocalCourse obj = gson.fromJson(subdata, LocalCourse.class);
+//
+//        Log.e("d2", String.valueOf(obj.getName()));
+
 
         adapter = new MyCoursesAdapter(getActivity(), environment) {
             @Override
@@ -173,7 +213,9 @@ public class MyCoursesListFragment extends OfflineSupportBaseFragment
                         }
                     });
         } else if (result.getResult() != null) {
+
             ArrayList<EnrolledCoursesResponse> newItems = new ArrayList<EnrolledCoursesResponse>(result.getResult());
+
 
             updateDatabaseAfterDownload(newItems);
 
@@ -183,6 +225,7 @@ public class MyCoursesListFragment extends OfflineSupportBaseFragment
             addFindCoursesFooter();
             adapter.notifyDataSetChanged();
 
+
             if (adapter.isEmpty() && !environment.getConfig().getDiscoveryConfig().getCourseDiscoveryConfig().isDiscoveryEnabled()) {
                 errorNotification.showError(R.string.no_courses_to_display,
                         FontAwesomeIcons.fa_exclamation_circle, 0, null);
@@ -191,6 +234,8 @@ public class MyCoursesListFragment extends OfflineSupportBaseFragment
                 binding.myCourseList.setVisibility(View.VISIBLE);
                 errorNotification.hideError();
             }
+
+
         }
         binding.swipeContainer.setRefreshing(false);
         binding.loadingIndicator.getRoot().setVisibility(View.GONE);
@@ -282,6 +327,44 @@ public class MyCoursesListFragment extends OfflineSupportBaseFragment
             }
         };
         handler.postDelayed(runnable, 79200000);
+
+
+        DatabaseReference schoolsRef = FirebaseDatabase.getInstance().getReference().child("users");
+        mFirebaseDatabase.orderByKey().equalTo(app.getEmeil().split("@")[0]);
+
+
+        DatabaseReference zonesRef = FirebaseDatabase.getInstance().getReference("users");
+        DatabaseReference zone1Ref = zonesRef.child(app.getEmeil().split("@")[0]);
+        DatabaseReference zone1NameRef = zone1Ref.child("courses");
+
+        zone1NameRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String courses = dataSnapshot.getValue(String.class);
+                localCourseDao.nukeTable();
+
+                if (courses!=null) {
+                    List<String> myList = new ArrayList<String>(Arrays.asList(courses.split(",")));
+
+
+                    for (int i = 1; i < myList.size(); i++) {
+                        localCourseDao.insert(new LocalCourse(i, myList.get(i)));
+                    }
+
+                    Log.e("Online", myList.toString());
+
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("TAG", "onCancelled", databaseError.toException());
+            }
+        });
+
+
     }
 
     private void addFindCoursesFooter() {

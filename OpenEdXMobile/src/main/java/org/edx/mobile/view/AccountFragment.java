@@ -21,6 +21,7 @@ import org.edx.mobile.deeplink.Screen;
 import org.edx.mobile.deeplink.ScreenDef;
 import org.edx.mobile.module.prefs.LoginPrefs;
 import org.edx.mobile.util.Config;
+import org.edx.mobile.view.view_holders.mpesaSubscriptionActivity;
 
 public class AccountFragment extends BaseFragment {
     private static final String TAG = AccountFragment.class.getCanonicalName();
@@ -78,6 +79,15 @@ public class AccountFragment extends BaseFragment {
                         environment.getAnalyticsRegistry(), environment.getNotificationDelegate());
             }
         });
+
+
+        binding.paymentBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(), mpesaSubscriptionActivity.class));
+            }
+        });
+
 
         binding.tvVersionNo.setText(String.format("%s %s %s", getString(R.string.label_version),
                 BuildConfig.VERSION_NAME, environment.getConfig().getEnvironmentDisplayName()));

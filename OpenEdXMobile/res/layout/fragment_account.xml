@@ -23,6 +23,12 @@
                 style="@style/account_option"
                 android:text="@string/profile_title" />
 
+
+            <TextView
+                android:id="@+id/payment_btn"
+                style="@style/account_option"
+                android:text="MPESA subscription" />
+
             <TextView
                 android:id="@+id/settings_btn"
                 style="@style/account_option"

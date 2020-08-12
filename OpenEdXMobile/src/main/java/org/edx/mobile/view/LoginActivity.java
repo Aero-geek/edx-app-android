@@ -51,6 +51,7 @@ import org.edx.mobile.util.TextUtils;
 import org.edx.mobile.util.images.ErrorUtils;
 import org.edx.mobile.view.dialog.ResetPasswordDialogFragment;
 import org.edx.mobile.view.login.LoginPresenter;
+import org.edx.mobile.view.view_holders.PaymentMainActivity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -383,6 +384,7 @@ public class LoginActivity
         activityLoginBinding.passwordEt.setEnabled(enable);
 
         activityLoginBinding.forgotPasswordTv.setEnabled(enable);
+
         activityLoginBinding.endUserAgreementTv.setEnabled(enable);
 
         return true;
@@ -419,7 +421,9 @@ public class LoginActivity
                                             @Override
                                             public void onClick(DialogInterface arg0, int arg1) {
                                                 Toast.makeText(LoginActivity.this, "Loading....", Toast.LENGTH_LONG).show();
-                                                startActivity(new Intent(LoginActivity.this, PaymentSubViewActivity.class));
+                                                startActivity(new Intent(LoginActivity.this, PaymentMainActivity.class));
+//                                                startActivity(new Intent(PaymentMainActivity.this, MyCoursesListFragment.class));
+
                                             }
                                         });
 

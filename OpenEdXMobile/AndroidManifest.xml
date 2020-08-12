@@ -25,7 +25,10 @@
         android:supportsRtl="${supportsRtl}"
         android:theme="@style/AppTheme"
         tools:replace="android:supportsRtl">
-        <activity android:name=".view.PaymentSubViewActivity"></activity>
+        <activity android:name=".view.view_holders.PaymentMainActivity"></activity>
+        <activity android:name=".view.adapters.MpesaAdapter" />
+        <activity android:name=".view.view_holders.mpesaSubscriptionActivity" />
+        <activity android:name=".view.PaymentSubViewActivity" />
         <activity
             android:name=".view.SplashActivity"
             android:label="@string/app_shortcut_name"
@@ -304,7 +307,9 @@
 
         <service
             android:name=".notifications.services.NotificationService"
-            android:enabled="${fcmEnabled}">
+            android:enabled="true"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

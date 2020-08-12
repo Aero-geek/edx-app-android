@@ -1,4 +1,4 @@
-API_HOST_URL: '#' # localhost is 10.0.2.2 in Android
+API_HOST_URL: 'https://online.smartedoo.co.ke' # localhost is 10.0.2.2 in Android
 ENVIRONMENT_DISPLAY_NAME: 'Smart Env'
 PLATFORM_NAME: 'Smart Edoo'
 PLATFORM_DESTINATION_NAME: 'online.smartedoo.co.ke'
@@ -8,9 +8,8 @@ OAUTH_CLIENT_ID: 'niKKPd3jwflUaPOZeUAMP9LyQPow9MDVD0c9DczW'
 
 
 
-PROJECT_NUMBER: ""
-PROJECT_ID: ""
-OAUTH_CLIENT_ID: ""
-CURRENT_KEY: ""
-MOBILE_SDK_APP_ID: ""
-OAUTH_CLIENT_ID: '#'
+PROJECT_NUMBER: "542719649768"
+PROJECT_ID: "mapnotification-1479378115320"
+OAUTH_CLIENT_ID: "542719649768-hdu830btshiscl5r7chlq3fmlbmrpq2g.apps.googleusercontent.com"
+CURRENT_KEY: "AIzaSyB6taj5D9qMeKnaKxyi-u1q4vALt7ZdZN8"
+MOBILE_SDK_APP_ID: "1:542719649768:android:6efdb380ad56bcb391665d"

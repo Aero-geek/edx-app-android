@@ -16,6 +16,7 @@
         android:scaleType="fitXY"
         tools:background="@color/edx_brand_primary_base" />
 
+
     <LinearLayout
         android:id="@+id/course_item_detail"
         android:layout_width="match_parent"
@@ -23,58 +24,82 @@
         android:layout_gravity="bottom"
         android:background="@color/transparent_white_85"
         android:minHeight="@dimen/course_detail_card_height"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/widget_margin"
-        android:paddingEnd="@dimen/widget_margin"
-        android:paddingLeft="@dimen/widget_margin"
-        android:paddingRight="@dimen/widget_margin"
+        android:orientation="horizontal"
         android:paddingStart="@dimen/widget_margin"
+        android:paddingLeft="@dimen/widget_margin"
         android:paddingTop="@dimen/widget_margin"
+        android:paddingEnd="@dimen/widget_margin"
+        android:paddingRight="@dimen/widget_margin"
+        android:paddingBottom="@dimen/widget_margin"
+        android:weightSum="2"
         tools:targetApi="17">
 
-        <TextView
-            android:id="@+id/course_name"
-            style="@style/course_card_title"
-            tools:text="@string/course_name" />
-
-        <TextView
-            android:id="@+id/course_details"
-            style="@style/course_card_course_run"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:targetApi="17"
-            tools:text="Starting October 19" />
 
         <LinearLayout
-            android:id="@+id/new_course_content_layout"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            tools:targetApi="17"
-            tools:visibility="visible">
-
-            <ImageView
-                android:id="@+id/ellipsis_icon"
-                android:layout_width="@dimen/course_card_ellipsis_icon_size"
-                android:layout_height="@dimen/course_card_ellipsis_icon_size"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/edx_brand_primary_accent_circle"
-                tools:ignore="ContentDescription" />
+            android:layout_height="match_parent"
+            android:layout_weight="1.5"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/new_course_content"
+                android:id="@+id/course_name"
+                style="@style/course_card_title"
+                tools:text="@string/course_name" />
+
+            <TextView
+                android:id="@+id/course_details"
+                style="@style/course_card_course_run"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:contentDescription="@string/new_course_content"
-                android:paddingLeft="@dimen/widget_margin_half"
-                android:paddingStart="@dimen/widget_margin_half"
-                android:text="@string/new_course_content"
-                android:textAllCaps="true"
-                android:textColor="@color/edx_brand_primary_accent"
-                android:textSize="@dimen/edx_x_small"
-                tools:targetApi="17" />
+                tools:targetApi="17"
+                tools:text="Starting October 19" />
+
+
+            <LinearLayout
+                android:id="@+id/new_course_content_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:targetApi="17"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:id="@+id/ellipsis_icon"
+                    android:layout_width="@dimen/course_card_ellipsis_icon_size"
+                    android:layout_height="@dimen/course_card_ellipsis_icon_size"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/edx_brand_primary_accent_circle"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/new_course_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:contentDescription="@string/new_course_content"
+                    android:paddingStart="@dimen/widget_margin_half"
+                    android:paddingLeft="@dimen/widget_margin_half"
+                    android:text="@string/new_course_content"
+                    android:textAllCaps="true"
+                    android:textColor="@color/edx_brand_primary_accent"
+                    android:textSize="@dimen/edx_x_small"
+                    tools:targetApi="17" />
+            </LinearLayout>
+
+
         </LinearLayout>
+
+
+<!--        <TextView-->
+<!--            android:id="@+id/sub_mpesa"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center_vertical"-->
+<!--            android:text="mpesa"-->
+<!--            android:textAllCaps="true"-->
+<!--            android:textColor="@color/edx_success_text"-->
+<!--            android:textSize="@dimen/edx_base"-->
+<!--            tools:targetApi="17" />-->
 
     </LinearLayout>
 </FrameLayout>

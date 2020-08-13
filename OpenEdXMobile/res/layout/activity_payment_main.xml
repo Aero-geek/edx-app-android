@@ -34,6 +34,7 @@
                     android:padding="@dimen/edx_base">
 
                     <TextView
+                        android:id="@+id/txt_header"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/edx_box_radius"
@@ -86,7 +87,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
-                                android:text="james"
+                                android:text="Class"
                                 android:padding="@dimen/edx_x_small"
                                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                                 android:textColor="@color/black" />
@@ -150,6 +151,19 @@
             android:gravity="center"
             android:padding="@dimen/edx_x_small"
             android:text="MPESA EXPRESS"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/edx_x_small" />
+
+        <Button
+            android:id="@+id/button_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/edx_base"
+            android:background="@drawable/btn_bg_green"
+            android:gravity="center"
+            android:visibility="gone"
+            android:padding="@dimen/edx_x_small"
+            android:text="Close"
             android:textColor="@android:color/white"
             android:textSize="@dimen/edx_x_small" />
 

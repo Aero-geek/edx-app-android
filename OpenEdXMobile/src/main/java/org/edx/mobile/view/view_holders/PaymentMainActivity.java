@@ -3,6 +3,7 @@ package org.edx.mobile.view.view_holders;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -19,7 +20,6 @@ import androidx.room.Room;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -53,6 +53,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
+
 public class PaymentMainActivity extends Activity {
     RuntimeApplication app;
     TextView txt_name;
@@ -70,6 +72,9 @@ public class PaymentMainActivity extends Activity {
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
     String token;
+    TextView txt_header;
+    Button button_close;
+    StringBuilder result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,12 +95,13 @@ public class PaymentMainActivity extends Activity {
         spinner = (ProgressBar) findViewById(R.id.progressBar1);
         spinner.setVisibility(View.GONE);
         edphoneNumber = findViewById(R.id.phoneNumber);
+        button_close = findViewById(R.id.button_close);
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
 
         // get reference to 'users' node
         mFirebaseDatabase = mFirebaseInstance.getReference("users");
-
+        txt_header = findViewById(R.id.txt_header);
 
         //Init Daraja
         //TODO :: REPLACE WITH YOUR OWN CREDENTIALS  :: THIS IS SANDBOX DEMO
@@ -104,7 +110,7 @@ public class PaymentMainActivity extends Activity {
             public void onResult(@NonNull AccessToken accessToken) {
                 Log.i(PaymentMainActivity.this.getClass().getSimpleName(), accessToken.getAccess_token());
 //                Toast.makeText(PaymentMainActivity.this, "TOKEN : " + accessToken.getAccess_token(), Toast.LENGTH_SHORT).show();
-                token=accessToken.getAccess_token();
+                token = accessToken.getAccess_token();
             }
 
             @Override
@@ -113,6 +119,13 @@ public class PaymentMainActivity extends Activity {
             }
         });
 
+        button_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(PaymentMainActivity.this, MainDashboardActivity.class));
+                finish();
+            }
+        });
 
         data = app.getList_of_animals();
 
@@ -182,6 +195,13 @@ public class PaymentMainActivity extends Activity {
 
                                 editor.apply();
 
+
+                                txt_header.setText("Checking payment");
+                                txt_name.setText("please wait.......");
+                                button_okay.setVisibility(View.GONE);
+                                edphoneNumber.setVisibility(View.GONE);
+
+
                                 final Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
                                     @Override
@@ -189,26 +209,25 @@ public class PaymentMainActivity extends Activity {
                                         // Do something after 5s = 5000ms
 //                                        startActivity(new Intent(PaymentMainActivity.this, MainDashboardActivity.class));
 //                                        finish();
+
                                         callCheckPayment(lnmResult.CheckoutRequestID);
+//                                        callvolly(lnmResult.CheckoutRequestID);
+
+
                                     }
                                 }, 20000);
 
 
 //                                if (lnmResult.CheckoutRequestID.equalsIgnoreCase("0")) {
-                                StringBuilder result = new StringBuilder();
+                                result = new StringBuilder();
 
                                 for (int i = 0; i < data.size(); i++) {
                                     localCourseDao.insert(new LocalCourse(i, data.get(i).getJina()));
-                                    result.append("," + data.get(i).getJina());
+                                    result.append(",").append(data.get(i).getJina());
 
                                 }
 
 
-                                String userId = mFirebaseDatabase.push().getKey();
-                                Users user = new Users(app.getEmeil(), result.toString());
-                                String domain = app.getEmeil().split("@") [0];
-
-                                mFirebaseDatabase.child(domain).setValue(user);
 
 
 
@@ -235,38 +254,58 @@ public class PaymentMainActivity extends Activity {
     private void callCheckPayment(String ref_key) {
 
         String api_url = "https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query";
-        HashMap<String, String> param = new HashMap<>();
 
-
-        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> params = new HashMap<>();
 
         params.put("BusinessShortCode", "7116859");
-        params.put("Password", "9623653c885e8f06a86f1616168b90729d0d7b9b34c793367745d7d06ba0b09d");
-        params.put("Timestamp","20180409093002");
+        params.put("Password", "NzExNjg1OTk2MjM2NTNjODg1ZThmMDZhODZmMTYxNjE2OGI5MDcyOWQwZDdiOWIzNGM3OTMzNjc3NDVkN2QwNmJhMGIwOWQyMDIwMDQzMDE4Mzk0OQ==");
+        params.put("Timestamp", "20200430183949");
         params.put("CheckoutRequestID", ref_key);
 
 
         Log.e("params", params.toString());
 
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, api_url, new JSONObject(params),
+
                 (JSONObject response) -> {
+
                     try {
 
 
-                        if (response.getString("success").equals("true")) {
-                            JSONObject jsonobj_response = response.getJSONObject("message");
+                        Log.e("Response", response.toString(4));
 
-                            String name = jsonobj_response.getString("msg");
 
+                        Users user = new Users(app.getEmeil(), result.toString());
+                        String domain = app.getEmeil().split("@")[0];
+
+                        String ResultCode = "";
+                        String ResultDesc = "";
+                        button_okay.setVisibility(View.GONE);
+                        edphoneNumber.setVisibility(View.GONE);
+                        for (int i = 0; i < response.length(); i++) {
+
+                            ResultCode = response.getString("ResultCode");
+                            ResultDesc = response.getString("ResultDesc");
+
+
+                        }
+                        if (ResultCode.equalsIgnoreCase("1032")) {
+                            localCourseDao.nukeTable();
+                            txt_name.setText("Failed");
+                            txt_header.setText("" + ResultDesc);
+                            txt_header.setTextColor(Color.RED);
 
 
                         } else {
-                            Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
+                            txt_name.setText("Success");
+                            txt_header.setText("" + ResultDesc);
+
+                            mFirebaseDatabase.child(domain).setValue(user);
 
                         }
+                        Toasty.error(getApplicationContext(), "" + ResultDesc.toString(), Toast.LENGTH_LONG, true).show();
 
-
-                        Log.e("JsonResponse", response.toString(4));
+                        button_close.setVisibility(View.VISIBLE);
 
 
                     } catch (JSONException e) {
@@ -278,36 +317,24 @@ public class PaymentMainActivity extends Activity {
             @Override
             public void onErrorResponse(VolleyError error) {
 
-//                Toast.makeText(getApplicationContext(), "" + error.toString(), Toast.LENGTH_SHORT).show();
-//
-                NetworkResponse networkResponse = error.networkResponse;
-//                Log.e("JsonResponse", error.toString());
-
-
+                Log.e("JsonResponse", String.valueOf(error.networkResponse.statusCode));
 
                 try {
                     String responseBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
                     JSONObject jsonObject = new JSONObject(responseBody);
-                    Log.e("Error", jsonObject.toString());
+                    Log.e("Eror", jsonObject.toString());
+                    button_close.setVisibility(View.VISIBLE);
 
-                    if (jsonObject.getString("success").equals("false")) {
 
-                        JSONObject jsonobj_response = jsonObject.getJSONObject("message");
+                    Toast.makeText(getApplicationContext(), " " + jsonObject.toString(), Toast.LENGTH_LONG).show();
 
-                        String name = jsonobj_response.getString("msg");
-                        name = name.replaceAll("[\\[\\](){}]", "");
-                        name = name.replace("\"", "");
-                        name = name.replaceAll(".+:", "");
-
-                        Toast.makeText(getApplicationContext(), " " + name, Toast.LENGTH_LONG).show();
-
-                    }
 
                 } catch (JSONException e) {
                     //Handle a malformed json response
                     Toast.makeText(getApplicationContext(), " " + e.toString(), Toast.LENGTH_LONG).show();
 
                 }
+
 
 
             }
@@ -317,10 +344,10 @@ public class PaymentMainActivity extends Activity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Content-Type", "application/json; charset=utf-8");
-//                headers.put("accepted", "application/json; charset=utf-8");
+//                headers.put("Content-Type", "application/json");
 
                 String auth = "Bearer " + token;
+                Log.e("--", auth);
                 headers.put("Authorization", auth);
                 return headers;
             }
@@ -332,5 +359,6 @@ public class PaymentMainActivity extends Activity {
 
         VolleySingleton.getInstance(this).addToRequestQueue(req);
     }
+
 
 }

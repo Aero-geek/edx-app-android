@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import es.dmoral.toasty.Toasty;
 
 public class mpesaSubscriptionActivity extends Activity {
     public List<MyListData> myListData = new ArrayList<>();
@@ -121,6 +124,8 @@ public class mpesaSubscriptionActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Error.Response", error.toString());
+                        Toasty.error(getApplicationContext(), "" + "No Internet connection", Toast.LENGTH_SHORT, true).show();
+
                         spinner.setVisibility(View.GONE);
 
                     }
@@ -142,7 +147,7 @@ public class mpesaSubscriptionActivity extends Activity {
         };
 
         // add it to the RequestQueue
-        req.setRetryPolicy(new DefaultRetryPolicy(20000, -1, 0));
+        req.setRetryPolicy(new DefaultRetryPolicy(20000, 3, 0));
 
         VolleySingleton.getInstance(this).addToRequestQueue(req);
 
